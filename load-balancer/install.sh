@@ -11,8 +11,8 @@ password=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8; echo)
 echo "will this machine be the main node (master)?"
 select yn in "Yes" "No"; do
     case $yn in
-        Yes ) state="MASTER";;
-        No ) state="SLAVE";;
+        Yes ) state="MASTER";break;;
+        No ) state="SLAVE";break;;
     esac
 done
 
