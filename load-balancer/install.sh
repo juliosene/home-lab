@@ -1,10 +1,10 @@
 apt update
 apt upgrade -y
 # Install keepalived
-apt install keepalived
+apt install keepalived -y
 
 # Install Nginx
-apt install curl gnupg2 ca-certificates lsb-release ubuntu-keyring
+apt install curl gnupg2 ca-certificates lsb-release ubuntu-keyring -y
 curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor     | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
