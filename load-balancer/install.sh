@@ -90,6 +90,10 @@ echo ""
 echo "to use Nginx UI open in your browser"
 echo "http://$myip:9000"
 echo ""
-echo "Take note of the following password. It will be required for the configuration of the slave node."
-echo ""
-echo "$password"
+
+if [ $yn == "Yes" ]; then
+    echo "Take note of the following password. It will be required for the configuration of the slave node."
+    echo ""
+    echo "$password"
+    echo ""
+fi
