@@ -18,7 +18,7 @@ select yn in "Yes" "No"; do
     esac
 done
 
-if [ $state="BACKUP" ]; then
+if [ $yn="No" ]; then
     echo "Please, type the keepalived password generated on the master node."
     read -p "Master node password: " password
     priority=100
