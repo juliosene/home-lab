@@ -14,16 +14,16 @@ echo "will this machine be the main node (master)?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) state="MASTER";break;;
-        No ) state="SLAVE";break;;
+        No ) state="BACKUP";break;;
     esac
 done
 
-if [ $state="SLAVE" ]; then
+if [ $state="BACKUP" ]; then
     echo "Please, type the keepalived password generated on the master node."
     read -p "Master node password: " password
-    priority=200
-else
     priority=100
+else
+    priority=200
 fi
 
 apt update
