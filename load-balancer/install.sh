@@ -6,6 +6,8 @@ read -p "servers IPs: " ips_list
 
 myip=$(hostname -I | awk '{print $1}')
 
+interface=$(ip address| grep BROADCAST| awk '{print $2}' | awk 'NR==1' | cut -d: -f1 | cut -d@ -f1)
+
 password=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8; echo)
 
 echo "will this machine be the main node (master)?"
@@ -15,6 +17,14 @@ select yn in "Yes" "No"; do
         No ) state="SLAVE";break;;
     esac
 done
+
+if [ $state="SLAVE" ]; then
+    echo "Please, type the keepalived password generated on the master node."
+    read -p "Master node password: " password
+    priority=200
+else
+    priority=100
+fi
 
 apt update
 apt upgrade -y
@@ -36,8 +46,10 @@ sed -i "s/#PASSWD#/$password/g" ~/keepalived.conf
 sed -i "s/#STATE#/$state/g" ~/keepalived.conf
 sed -i "s/#MYIP#/$myip/g" ~/keepalived.conf
 sed -i "s/#SERVERSIPS#/$ips_servers/g" ~/keepalived.conf
-sed -i "s/#VIPCIR#/$vip_cirs/g" ~/keepalived.conf
-
+sed -i "s/#VIPCIR#/$vip_cir/g" ~/keepalived.conf
+sed -i "s/#PRIORITY#/$priority/g" ~/keepalived.conf
+sed -i "s/#INTERFACE#/$interface/g" ~/keepalived.conf
+ 
 mv ~/keepalived.conf /etc/keepalived/keepalived.conf
 
 service keepalived restart
@@ -74,5 +86,10 @@ curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balanc
 service nginx restart
 
 echo "Finished!"
+echo ""
 echo "to use Nginx UI open in your browser"
-echo "http://<your IP>:9000"
+echo "http://$myip:9000"
+echo ""
+echo "Take note of the following password. It will be required for the configuration of the slave node."
+echo ""
+echo "$password"
