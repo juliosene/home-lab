@@ -12,6 +12,10 @@ interface=$(ip address| grep BROADCAST| awk '{print $2}' | awk 'NR==1' | cut -d:
 
 password=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8; echo)
 
+syncpasswd=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 24; echo)
+
+syncuser="rsync"
+
 echo "will this machine be the main node (master)?"
 select yn in "Yes" "No"; do
     case $yn in
@@ -38,7 +42,9 @@ apt install keepalived -y
 # Configuring keepalived
 
 ips_servers=""
+syncservers=""
 IFS=','; for word in $ips_list; do ips_servers+=${word}"\n"; done
+IFS=','; for word in $ips_list; do ips_servers+=${word}" "; done
 
 echo -e $ips_servers| tr -d ' '
 
@@ -87,6 +93,21 @@ mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
 curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balancer/nginx.conf > /etc/nginx/nginx.conf
 
 service nginx restart
+
+# Install syncronization
+
+apt install rsync sshpass -y
+
+curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balancer/sync-nginx.sh > /ush/bin/sync-nginx.sh
+chmod 711 /usr/bin/sync-nginx.sh
+
+sed -i "s/#PASSWD#/$syncpasswd/g" /ush/bin/sync-nginx.sh
+sed -i "s/#STATE#/$syncuser/g" /ush/bin/sync-nginx.sh
+sed -i "s/#MYIP#/$$syncservers/g" /ush/bin/sync-nginx.sh
+
+# add rsync to cron (5min sync)
+echo "5-55/5 * * * * root /usr/bin/sync-nginx.sh" > /etc/cron.d/nginx-rsync
+
 
 echo "Finished!"
 echo ""
