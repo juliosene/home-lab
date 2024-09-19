@@ -105,8 +105,9 @@ sed -i "s/#PASSWD#/$syncpasswd/g" /ush/bin/sync-nginx.sh
 sed -i "s/#STATE#/$syncuser/g" /ush/bin/sync-nginx.sh
 sed -i "s/#MYIP#/$$syncservers/g" /ush/bin/sync-nginx.sh
 
-# add rsync to cron (5min sync)
-echo "5-55/5 * * * * root /usr/bin/sync-nginx.sh" > /etc/cron.d/nginx-rsync
+# add rsync to cron (5every min sync)
+echo "* * * * * root /usr/bin/sync-nginx.sh &> /dev/null" > /etc/cron.d/nginx-rsync
+service cron restart
 
 
 echo "Finished!"
