@@ -2,7 +2,7 @@ echo "Installing Keepalived, Nginx and Nginx UI..."
 echo "Please, what will be your VIP? This is the IP address shared between all servers as a single entry point. (ex: 192.168.1.10)"
 read -p "VIP: " vip
 echo "What will be your network CIR (netmask)?  (ex: when your network is somthing like 192.168.1.10/24 your CIR is 24)"
-read -p "VIP: " cir
+read -p "CIR: " cir
 echo "Now, inform the IPs of your other keepalived servers that will share the same VIP. Do not add this machine IP to the list. Comma separated (ex: 192.168.1.22, 192.168.1.23)"
 read -p "servers IPs: " ips_list
 
