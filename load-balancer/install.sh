@@ -19,8 +19,8 @@ syncuser="rsync"
 echo "will this machine be the main node (master)?"
 select yn in "Yes" "No"; do
     case $yn in
-        Yes ) state="MASTER";break;;
-        No ) state="BACKUP";break;;
+        Yes ) echo "this server will be the MASTER";break;;
+        No ) echo "this server will be a BACKUP";break;;
     esac
 done
 
@@ -28,6 +28,7 @@ if [ $yn == "No" ]; then
     echo "Please, type the keepalived password generated on the master node."
     read -p "Master node password: " password
     priority=$(expr 100 + $(\tr -dc 0-9 </dev/urandom | head -c 2; echo)
+    $state="BACKUP"
 else
     priority=200
 fi
