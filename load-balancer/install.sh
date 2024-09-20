@@ -1,36 +1,56 @@
+syncuser="rsync"
+
+
 echo "Installing Keepalived, Nginx and Nginx UI..."
-echo "Please, what will be your VIP? This is the IP address shared between all servers as a single entry point. (ex: 192.168.1.10)"
-read -p "VIP: " vip
-echo "What will be your network CIR (netmask)?  (ex: when your network is somthing like 192.168.1.10/24 your CIR is 24)"
-read -p "CIR: " cir
-echo "Now, inform the IPs of your other keepalived servers that will share the same VIP. Do not add this machine IP to the list. Comma separated (ex: 192.168.1.22, 192.168.1.23)"
-read -p "servers IPs: " ips_list
+
+vip=${1:-0}
+cir=${2:-0}
+ips_list=${3:-0}
+
+if [ $ips_list == 0 ]
+then
+    echo "Please, what will be your VIP? This is the IP address shared between all servers as a single entry point. (ex: 192.168.1.10)"
+    read -p "VIP: " vip
+    echo "What will be your network CIR (netmask)?  (ex: when your network is somthing like 192.168.1.10/24 your CIR is 24)"
+    read -p "CIR: " cir
+    echo "Now, inform the IPs of your other keepalived servers that will share the same VIP. Do not add this machine IP to the list. Comma separated (ex: 192.168.1.22, 192.168.1.23)"
+    read -p "servers IPs: " ips_list
+fi
+
 
 myip=$(hostname -I | awk '{print $1}')
 
 interface=$(ip address| grep BROADCAST| awk '{print $2}' | awk 'NR==1' | cut -d: -f1 | cut -d@ -f1)
 
 password=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8; echo)
+password=${4:-$password}
 
 syncpasswd=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 24; echo)
+syncpasswd=${5:-$syncpasswd}
 
-syncuser="rsync"
+yn=${6:-0}
 
-echo "will this machine be the main node (master)?"
-select yn in "Yes" "No"; do
-    case $yn in
-        Yes ) echo "this server will be the MASTER";break;;
-        No ) echo "this server will be a BACKUP";break;;
-    esac
-done
+if [ $yn == 0 ]
+then
+  echo "will this machine be the main node (master)?"
+  select yn in "Yes" "No"; do
+      case $yn in
+          Yes ) echo "this server will be the MASTER";break;;
+          No ) echo "this server will be a BACKUP";break;;
+      esac
+  done
+fi  
 
-if [ $yn == "No" ]; then
+
+if [ $yn == "No" ]
+then
     echo "Please, type the keepalived password generated on the master node."
     read -p "Master node password: " password
-    priority=$(expr 100 + $(\tr -dc 0-9 </dev/urandom | head -c 2; echo)
-    $state="BACKUP"
+    priority=$(expr 100 + $(\tr -dc 0-9 </dev/urandom | head -c 2; echo))
+    state="BACKUP"
 else
     priority=200
+    state="BACKUP"
 fi
 
 apt update
@@ -44,8 +64,7 @@ apt install keepalived -y
 
 ips_servers=""
 syncservers=""
-IFS=','; for word in $ips_list; do ips_servers+=${word}"\n"; done
-IFS=','; for word in $ips_list; do ips_servers+=${word}" "; done
+IFS=','; for word in $ips_list; do ips_servers+=${word}"\n"; syncservers+=${word}" "; done
 
 echo -e $ips_servers| tr -d ' '
 
@@ -105,12 +124,12 @@ useradd -p $(openssl passwd -1 $syncpasswd) $syncuser
 echo "$syncuser ALL= NOPASSWD:/usr/bin/rsync" >> /etc/sudoers
 
 
-curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balancer/sync-nginx.sh > /ush/bin/sync-nginx.sh
+curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balancer/sync-nginx.sh > /usr/bin/sync-nginx.sh
 chmod 711 /usr/bin/sync-nginx.sh
 
-sed -i "s/#PASSWD#/$syncpasswd/g" /ush/bin/sync-nginx.sh
-sed -i "s/#STATE#/$syncuser/g" /ush/bin/sync-nginx.sh
-sed -i "s/#MYIP#/$$syncservers/g" /ush/bin/sync-nginx.sh
+sed -i "s/#PASSWD#/$syncpasswd/g" /usr/bin/sync-nginx.sh
+sed -i "s/#STATE#/$syncuser/g" /usr/bin/sync-nginx.sh
+sed -i "s/#MYIP#/$$syncservers/g" /usr/bin/sync-nginx.sh
 
 # add rsync to cron (5every min sync)
 echo "* * * * * root /usr/bin/sync-nginx.sh &> /dev/null" > /etc/cron.d/nginx-rsync
@@ -124,8 +143,21 @@ echo "http://$myip:9000"
 echo ""
 
 if [ $yn == "Yes" ]; then
-    echo "Take note of the following password. It will be required for the configuration of the slave node."
+    echo "Take note of the following password. It will be required for the configuration of the BACKUP node."
     echo ""
     echo "$password"
     echo ""
+    echo ""
+    echo ""
+    IFS=',' read -a ip_array <<< "$ips_list"
+
+    for ip in ${ip_array[@]}
+    do
+        echo ""
+        echo ""
+        echo ""        
+        echo "bash install.sh $vip $cir $(sed "s/$ip/$myip/g" <<< "$ips_list") $password $syncpasswd $yn"
+        echo ""
+    done
+
 fi
