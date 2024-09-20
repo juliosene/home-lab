@@ -155,8 +155,8 @@ if [ $yn == "Yes" ]; then
     do
         echo ""
         echo ""
-        echo ""        
-        echo "bash install.sh $vip $cir $(sed "s/$ip/$myip/g" <<< "$ips_list") $password $syncpasswd $yn"
+        echo "To install on the server IP: $ip just execute next command line"        
+        echo "bash install.sh $vip $cir $(sed "s/$ip/$myip/g" <<< "$ips_list") $password $syncpasswd No"
         echo ""
     done
 
