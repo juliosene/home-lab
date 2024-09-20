@@ -95,8 +95,12 @@ curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balanc
 service nginx restart
 
 # Install syncronization
-
 apt install rsync sshpass -y
+
+useradd -p $(openssl passwd -1 $syncpasswd) $syncuser
+
+echo "$syncuser ALL= NOPASSWD:/usr/bin/rsync" >> /etc/sudoers
+
 
 curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balancer/sync-nginx.sh > /ush/bin/sync-nginx.sh
 chmod 711 /usr/bin/sync-nginx.sh
