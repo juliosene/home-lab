@@ -10,6 +10,7 @@ then
         for i in ${servers_ips[@]}
         do
                 rsync -ar --delete --rsync-path="sudo $user" --rsh="/usr/bin/sshpass -p $password ssh -o StrictHostKeyChecking=no -l $user" /etc/nginx/* rsync@$i:/etc/nginx/
+                rsync -ar --delete --rsync-path="sudo $user" --rsh="/usr/bin/sshpass -p $password ssh -o StrictHostKeyChecking=no -l $user" /var/local/websites/* rsync@$i:/var/local/websites/
         done
 
 else

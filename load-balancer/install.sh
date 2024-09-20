@@ -27,7 +27,7 @@ done
 if [ $yn == "No" ]; then
     echo "Please, type the keepalived password generated on the master node."
     read -p "Master node password: " password
-    priority=100
+    priority=$(expr 100 + $(\tr -dc 0-9 </dev/urandom | head -c 2; echo)
 else
     priority=200
 fi
@@ -82,8 +82,8 @@ bash <(curl -L -s https://raw.githubusercontent.com/0xJacky/nginx-ui/master/inst
 
 # Configuring Nginx and Nginx UI
 
-mkdir /etc//nginx/streams-enabled
-mkdir /etc//nginx/streams-available
+mkdir /etc/nginx/streams-enabled
+mkdir /etc/nginx/streams-available
 mkdir /etc/nginx/sites-enabled
 mkdir /etc/nginx/sites-available
 
@@ -91,6 +91,8 @@ mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
 # wget https://raw.githubusercontent.com/juliosene/home-lab/main/load-balancer/nginx.conf |mv nginx.conf /etc/nginx/nginx.conf
 
 curl -fsSL https://raw.githubusercontent.com/juliosene/home-lab/main/load-balancer/nginx.conf > /etc/nginx/nginx.conf
+
+mkdir /var/local/websites
 
 service nginx restart
 
