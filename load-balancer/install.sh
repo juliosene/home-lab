@@ -143,12 +143,12 @@ echo "http://$myip:9000"
 echo ""
 
 if [ $yn == "Yes" ]; then
-    echo "Take note of the following password. It will be required for the configuration of the BACKUP node."
-    echo ""
-    echo "$password"
-    echo ""
-    echo ""
-    echo ""
+#    echo "Take note of the following password. It will be required for the configuration of the BACKUP node."
+#    echo ""
+#    echo "$password"
+#    echo ""
+#    echo ""
+#    echo ""
     IFS=',' read -a ip_array <<< "$ips_list"
 
     for ip in ${ip_array[@]}
