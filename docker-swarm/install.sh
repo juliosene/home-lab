@@ -69,7 +69,7 @@ sudo systemctl enable containerd.service
 # SWARM
 
 # Example iptables rule (order and other tools may require customization)
-iptables -I INPUT -m udp --dport 4789 -m policy --dir in --pol none -j DROP
+# iptables -I INPUT -m udp --dport 4789 -m policy --dir in --pol none -j DROP
 
 #  create a new swarm
 
@@ -79,6 +79,10 @@ then
   OUTPUT=$(docker swarm init --advertise-addr $MANAGER_IP)
   # find the token and IP:port for other nodes
   for word in $OUTPUT; do if [[ $next == 2 ]]; then TOKEN=$word;((next--)); else if [[ $next == 1 ]]; then IP_PORT=$word;((next--)); fi; fi;  if [ $word == "--token" ]; then next=2; fi; done
+
+  #install portainer
+  curl -L https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml -o portainer-agent-stack.yml
+  docker stack deploy -c portainer-agent-stack.yml portainer
 else
   # add the machine to swarm cluster as a worker
   sudo  docker swarm join --token $TOKEN $MANAGER_IP
