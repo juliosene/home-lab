@@ -1,8 +1,8 @@
 echo "Installing Docker Swarm..."
 echo ""
 
-MANAGER_IP=$(hostname -I | awk '{print $1}')
-#MANAGER_IP=${1:-0}
+
+MANAGER_IP=${1:-0}
 #MANAGER_IP=0
 TOKEN=${2:-0}
 #USER=${3:'docker'}
@@ -11,10 +11,9 @@ DKR_USER="docker"
 
 if [ $MANAGER_IP == 0 ]
 then
-    echo "Please, what will be your manager IP? This is the IP address used by Swarm master node. (ex: 192.168.1.10)"
-    read -p "Manager IP: " MANAGER_IP
-#    echo "What will be your network CIR (netmask)?  (ex: when your network is somthing like 192.168.1.10/24 your CIR is 24)"
-#    read -p "CIR: " CIR
+    MANAGER_IP=$(hostname -I | awk '{print $1}')
+#    echo "Please, what will be your manager IP? This is the IP address used by Swarm master node. (ex: 192.168.1.10)"
+#    read -p "Manager IP: " MANAGER_IP
 fi
 
 
