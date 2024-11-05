@@ -1,5 +1,5 @@
 echo "Installing Docker Swarm..."
-
+TOKEN=0
 MANAGER_IP=${1:-0}
 #MANAGER_IP=0
 TOKEN=${2:-0}
