@@ -1,9 +1,18 @@
 echo "Installing Docker Swarm..."
 
-# $VERSION_CODENAME=
+MANAGER_IP=${1:-0}
+#MANAGER_IP=0
+TOKEN=${2:-0}
+#USER=${3:'docker'}
 USER="docker"
-MANAGER_IP="10.0.6.10"
 
+if [ $MANAGER_IP == 0 ]
+then
+    echo "Please, what will be your manager IP? This is the IP address used by Swarm master node. (ex: 192.168.1.10)"
+    read -p "Manager IP: " MANAGER_IP
+#    echo "What will be your network CIR (netmask)?  (ex: when your network is somthing like 192.168.1.10/24 your CIR is 24)"
+#    read -p "CIR: " CIR
+fi
 
 
 # Run the following command to uninstall all conflicting packages:
@@ -57,10 +66,21 @@ sudo systemctl enable containerd.service
 iptables -I INPUT -m udp --dport 4789 -m policy --dir in --pol none -j DROP
 
 #  create a new swarm
-docker swarm init --advertise-addr $MANAGER_IP
 
-
-# creates a swarm on the manager machine
+if [ $TOKEN == 0 ]
+then
+  # creates a swarm on the manager machine
+  OUTPUT=(docker swarm init --advertise-addr $MANAGER_IP)
+  # find the token and IP:port for other nodes
+  for word in $OUTPUT; do echo "$word"; if [[ $next == 2 ]]; then TOKEN=$word;((next--)); else if [[ $next == 1 ]]; then IP_PORT=$word;((next--)); fi; fi;  if [ $word == "--token" ]; then next=2; fi; done
+else
+  # add the machine to swarm cluster as a worker
+  sudo  docker swarm join --token $TOKEN $MANAGER_IP
+fi
 
 docker info
 docker node ls
+
+echo "To install swarm worker nodes, use the command:"
+echo ""
+echo "bash install.sh $IP_PORT $TOKEN"
