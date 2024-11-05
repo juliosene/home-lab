@@ -1,9 +1,13 @@
 echo "Installing Docker Swarm..."
-MANAGER_IP=${1:-0}
+echo ""
+
+MANAGER_IP=$(hostname -I | awk '{print $1}')
+#MANAGER_IP=${1:-0}
 #MANAGER_IP=0
 TOKEN=${2:-0}
 #USER=${3:'docker'}
 DKR_USER="docker"
+
 
 if [ $MANAGER_IP == 0 ]
 then
@@ -84,6 +88,8 @@ fi
 docker info
 docker node ls
 
+echo ""
 echo "To install swarm worker nodes, use the command:"
 echo ""
 echo "bash install.sh $IP_PORT $TOKEN"
+echo ""
