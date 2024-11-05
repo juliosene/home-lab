@@ -4,7 +4,7 @@ MANAGER_IP=${1:-0}
 #MANAGER_IP=0
 TOKEN=${2:-0}
 #USER=${3:'docker'}
-USER="docker"
+DKR_USER="docker"
 
 if [ $MANAGER_IP == 0 ]
 then
@@ -42,14 +42,18 @@ sudo docker run hello-world
 
 # post-installation
 
+# Add user to docker
+sudo adduser --disabled-password --gecos "" $DKR_USER
+
 # Create the docker group.
 sudo groupadd docker
 
 # Add your user to the docker group.
-sudo usermod -aG docker $USER
+sudo usermod -aG docker $DKR_USER
 
-sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
-sudo chmod g+rwx "$HOME/.docker" -R
+echo "" > /home/"$DKR_USER"/.docker
+sudo chown "$DKR_USER":"$DKR_USER" /home/"$DKR_USER"/.docker -R
+sudo chmod g+rwx "/home/"$DKR_USER"/.docker" -R
 
 
 # Verify that you can run docker commands without sudo.
@@ -70,9 +74,9 @@ iptables -I INPUT -m udp --dport 4789 -m policy --dir in --pol none -j DROP
 if [ $TOKEN == 0 ]
 then
   # creates a swarm on the manager machine
-  OUTPUT=(docker swarm init --advertise-addr $MANAGER_IP)
+  OUTPUT=$(docker swarm init --advertise-addr $MANAGER_IP)
   # find the token and IP:port for other nodes
-  for word in $OUTPUT; do echo "$word"; if [[ $next == 2 ]]; then TOKEN=$word;((next--)); else if [[ $next == 1 ]]; then IP_PORT=$word;((next--)); fi; fi;  if [ $word == "--token" ]; then next=2; fi; done
+  for word in $OUTPUT; do if [[ $next == 2 ]]; then TOKEN=$word;((next--)); else if [[ $next == 1 ]]; then IP_PORT=$word;((next--)); fi; fi;  if [ $word == "--token" ]; then next=2; fi; done
 else
   # add the machine to swarm cluster as a worker
   sudo  docker swarm join --token $TOKEN $MANAGER_IP
