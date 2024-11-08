@@ -107,7 +107,7 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Test Docker
-sudo docker run hello-world
+# sudo docker run hello-world
 
 # Post-installation
 
@@ -127,7 +127,7 @@ sudo chown "$DKR_USER":"$DKR_USER" /home/"$DKR_USER"/.docker -R
 sudo chmod g+rwx "/home/"$DKR_USER"/.docker" -R
 
 # Verify that you can run Docker commands without sudo
-docker run hello-world
+# docker run hello-world
 
 # Configure Docker to start on boot with systemd
 sudo systemctl enable docker.service
