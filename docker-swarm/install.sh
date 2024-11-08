@@ -21,11 +21,11 @@ else
 fi
 
 # Check if Swarm is active
-SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
+SWARM_STATUS=$(sudo docker info --format '{{.Swarm.LocalNodeState}}')
 if [ "$SWARM_STATUS" == "active" ]; then
     echo "Docker Swarm is already active on this machine."
     # Check if the machine is a manager or worker
-    NODE_ROLE=$(docker info --format '{{.Swarm.ControlAvailable}}')
+    NODE_ROLE=$(sudo docker info --format '{{.Swarm.ControlAvailable}}')
     if [ "$NODE_ROLE" == "true" ]; then
         echo "This machine is a manager node in the Docker Swarm."
         IS_MASTER=true
@@ -40,11 +40,11 @@ if [ "$SWARM_STATUS" == "active" ]; then
         echo ""
         echo "To add swarm worker nodes, use the command:"
         echo ""
-        echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q worker)"
+        echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q worker)"
         echo ""
         echo "To add swarm manager nodes, use the command:"
         echo ""
-        echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q manager)"
+        echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q manager)"
         echo ""
     fi
     
