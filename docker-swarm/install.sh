@@ -57,12 +57,10 @@ if [ $MANAGER_IP == 0 ] && [ "$SWARM_STATUS" == "inactive" ]; then
 fi
 
 # Run the following command to uninstall all conflicting packages
-apt update
+sudo apt update
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
-apt upgrade -y
+sudo apt upgrade -y
 
-
-#!/bin/bash
 
 # Function to check and enable sysctl parameters
 enable_sysctl_param() {
@@ -122,7 +120,7 @@ sudo useradd -g docker -m -s /bin/null $DKR_USER
 # Add your user to the Docker group (double ckeck)
 sudo usermod -aG docker $DKR_USER
 
-echo "" > /home/"$DKR_USER"/.docker
+echo "" | sudo tee /home/"$DKR_USER"/.docker
 sudo chown "$DKR_USER":"$DKR_USER" /home/"$DKR_USER"/.docker -R
 sudo chmod g+rwx "/home/"$DKR_USER"/.docker" -R
 
