@@ -146,16 +146,15 @@ if [ $TOKEN == 0 ]; then
   sudo -u docker docker swarm init --advertise-addr $MANAGER_IP
 
   # Check if Swarm is active
-  SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
+  SWARM_STATUS=$(sudo docker info --format '{{.Swarm.LocalNodeState}}')
   if [ "$SWARM_STATUS" == "active" ]; then
     # Install Portainer
     curl -L https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml -o portainer-agent-stack.yml
-    sudo -u docker stack deploy -c portainer-agent-stack.yml portainer
+    sudo docker stack deploy -c portainer-agent-stack.yml portainer
   fi
 else
   # Add the machine to swarm cluster as a worker
   sudo -u docker docker swarm join --token $TOKEN $MANAGER_IP
-  IP_PORT=$MANAGER_IP
 fi
 
 docker info
