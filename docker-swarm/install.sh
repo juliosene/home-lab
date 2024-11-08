@@ -139,18 +139,18 @@ sudo systemctl enable containerd.service
 # Create a new swarm
 if [ $TOKEN == 0 ]; then
   # Create a swarm on the manager machine
-  docker swarm init --advertise-addr $MANAGER_IP
+  sudo -u docker docker swarm init --advertise-addr $MANAGER_IP
 
   # Check if Swarm is active
   SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
   if [ "$SWARM_STATUS" == "active" ]; then
     # Install Portainer
     curl -L https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml -o portainer-agent-stack.yml
-    docker stack deploy -c portainer-agent-stack.yml portainer
+    sudo -u docker stack deploy -c portainer-agent-stack.yml portainer
   fi
 else
   # Add the machine to swarm cluster as a worker
-  sudo docker swarm join --token $TOKEN $MANAGER_IP
+  sudo -u docker docker swarm join --token $TOKEN $MANAGER_IP
   IP_PORT=$MANAGER_IP
 fi
 
