@@ -86,6 +86,7 @@ then
 else
   # add the machine to swarm cluster as a worker
   sudo  docker swarm join --token $TOKEN $MANAGER_IP
+  IP_PORT=$MANAGER_IP
 fi
 
 docker info

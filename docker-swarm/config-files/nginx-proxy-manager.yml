@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  nginxproxymanager:
+    image: jc21/nginx-proxy-manager:latest
+    environment:
+      DB_MYSQL_HOST: db
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: npm
+      DB_MYSQL_PASSWORD: sY7zLw9xVt0uJq8nHrTp
+      DB_MYSQL_NAME: npm_db
+    volumes:
+      - nginx_data:/data
+      - nginx_letsencrypt:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    networks:
+      - npm_network
+      - npm_db_network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: tK6mLp4zXu9wYb2hVrGs
+      MYSQL_DATABASE: npm_db
+      MYSQL_USER: npm
+      MYSQL_PASSWORD: sY7zLw9xVt0uJq8nHrTp
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - npm_db_network
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+networks:
+  npm_network:
+    driver: overlay
+  npm_db_network:
+    driver: overlay
+
+volumes:
+  nginx_data:
+  nginx_letsencrypt:
+  db_data:

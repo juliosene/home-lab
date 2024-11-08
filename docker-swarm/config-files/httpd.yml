@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  apache:
+    image: httpd:latest
+    ports:
+      - "8080:80"  
+    volumes:
+      - apache_html:/usr/local/apache2/htdocs
+    networks:
+      - apache_network
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+networks:
+  apache_network:
+    driver: overlay
+
+volumes:
+  apache_html:
