@@ -157,7 +157,7 @@ else
   sudo -u docker docker swarm join --token $TOKEN $MANAGER_IP
 fi
 
-docker info
+sudo docker info
 
 NODE_ROLE=$(sudo docker info --format '{{.Swarm.ControlAvailable}}')
 if [ "$NODE_ROLE" == "true" ]; then
