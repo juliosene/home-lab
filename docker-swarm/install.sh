@@ -60,6 +60,7 @@ if [ "$MANAGER_IP" == "0" ]; then
 fi
 
 # Run the following command to uninstall all conflicting packages
+sudo timedatectl set-ntp true
 sudo apt update
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
 sudo apt upgrade -y
