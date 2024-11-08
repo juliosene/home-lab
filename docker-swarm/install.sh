@@ -40,12 +40,15 @@ if [ "$SWARM_STATUS" == "active" ]; then
         echo ""
         echo "To add swarm worker nodes, use the command:"
         echo ""
-        echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q worker)"
+        echo "wget https://raw.githubusercontent.com/juliosene/home-lab/refs/heads/main/docker-swarm/install.sh -O install.sh"
+        echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q manager)"
         echo ""
         echo "To add swarm manager nodes, use the command:"
         echo ""
-        echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q manager)"
+        echo "wget https://raw.githubusercontent.com/juliosene/home-lab/refs/heads/main/docker-swarm/install.sh -O install.sh"
+        echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q worker)"
         echo ""
+
     fi
     
     exit 0
@@ -160,9 +163,11 @@ docker node ls
 echo ""
 echo "To add swarm worker nodes, use the command:"
 echo ""
-echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q worker)"
+echo "wget https://raw.githubusercontent.com/juliosene/home-lab/refs/heads/main/docker-swarm/install.sh -O install.sh"
+echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q manager)"
 echo ""
 echo "To add swarm manager nodes, use the command:"
 echo ""
-echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q manager)"
+echo "wget https://raw.githubusercontent.com/juliosene/home-lab/refs/heads/main/docker-swarm/install.sh -O install.sh"
+echo "bash install.sh $MANAGER_IP:2377 $(docker swarm join-token -q worker)"
 echo ""
