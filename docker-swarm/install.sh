@@ -120,7 +120,7 @@ sudo useradd -g docker -m -s /bin/null $DKR_USER
 # Add your user to the Docker group (double ckeck)
 sudo usermod -aG docker $DKR_USER
 
-echo "" | sudo tee /home/"$DKR_USER"/.docker
+sudo -u $DKR_USER mkdir -p /home/"$DKR_USER"/.docker
 sudo chown "$DKR_USER":"$DKR_USER" /home/"$DKR_USER"/.docker -R
 sudo chmod g+rwx "/home/"$DKR_USER"/.docker" -R
 
