@@ -61,6 +61,35 @@ apt update
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
 apt upgrade -y
 
+
+#!/bin/bash
+
+# Function to check and enable sysctl parameters
+enable_sysctl_param() {
+    local param_name="$1"
+    local param_value="$2"
+
+    if [ "$(sysctl -n $param_name)" -ne "$param_value" ]; then
+        echo "$param_name = $param_value" | sudo tee -a /etc/sysctl.conf
+        sudo sysctl -w "$param_name=$param_value"
+        echo "$param_name is now set to $param_value"
+    else
+        echo "$param_name is already set to $param_value"
+    fi
+}
+
+# Check and enable bridge-nf-call-iptables
+enable_sysctl_param "net.bridge.bridge-nf-call-iptables" 1
+
+# Check and enable bridge-nf-call-ip6tables
+enable_sysctl_param "net.bridge.bridge-nf-call-ip6tables" 1
+
+# Apply the changes
+sudo sysctl --system
+
+echo "All network changes have been applied."
+
+
 # Add Docker's official GPG key
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl
