@@ -85,8 +85,10 @@ sudo docker run hello-world
 # Add user to Docker
 sudo adduser --disabled-password --gecos "" $DKR_USER
 
-# Create the Docker group
-sudo groupadd docker
+# Create the Docker group (if it doesn't exist)
+if ! getent group docker; then
+    sudo groupadd docker
+fi
 
 # Add your user to the Docker group
 sudo usermod -aG docker $DKR_USER
@@ -112,14 +114,13 @@ if [ $TOKEN == 0 ]; then
   # Create a swarm on the manager machine
   docker swarm init --advertise-addr $MANAGER_IP
 
-   # Check if Swarm is active
-   SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
-   if [ "$SWARM_STATUS" == "active" ]; then
-
-
-  # Install Portainer
-  curl -L https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml -o portainer-agent-stack.yml
-  docker stack deploy -c portainer-agent-stack.yml portainer
+  # Check if Swarm is active
+  SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
+  if [ "$SWARM_STATUS" == "active" ]; then
+    # Install Portainer
+    curl -L https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml -o portainer-agent-stack.yml
+    docker stack deploy -c portainer-agent-stack.yml portainer
+  fi
 else
   # Add the machine to swarm cluster as a worker
   sudo docker swarm join --token $TOKEN $MANAGER_IP
