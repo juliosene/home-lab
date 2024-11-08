@@ -82,15 +82,15 @@ sudo docker run hello-world
 
 # Post-installation
 
-# Add user to Docker
-sudo adduser --disabled-password --gecos "" $DKR_USER
-
 # Create the Docker group (if it doesn't exist)
 if ! getent group docker; then
     sudo groupadd docker
 fi
 
-# Add your user to the Docker group
+# Add user to docker
+sudo useradd -g docker -m -s /bin/null $DKR_USER
+
+# Add your user to the Docker group (double ckeck)
 sudo usermod -aG docker $DKR_USER
 
 echo "" > /home/"$DKR_USER"/.docker
