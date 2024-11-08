@@ -174,4 +174,7 @@ if [ "$NODE_ROLE" == "true" ]; then
       echo "wget https://raw.githubusercontent.com/juliosene/home-lab/refs/heads/main/docker-swarm/install.sh -O install.sh"
       echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q worker)"
       echo ""
+      echo "To have access to Portainer, use the URL:"
+      echo "https://$MANAGER_IP:9443"
+      echo ""
 fi
