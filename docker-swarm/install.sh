@@ -52,7 +52,7 @@ if [ "$SWARM_STATUS" == "active" ]; then
 fi
 
 
-if [ $MANAGER_IP == 0 ] && [ "$SWARM_STATUS" == "inactive" ]; then
+if [ "$MANAGER_IP" == "0" ]; then
     MANAGER_IP=$(hostname -I | awk '{print $1}')
 fi
 
