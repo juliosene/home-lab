@@ -9,7 +9,7 @@ print_banner() {
     echo ""
 }
 
-print_banner "Installing Docker Swarm..."
+print_banner "Starting install.Cluster4.me"
 
 MANAGER_IP=${1:-0}
 TOKEN=${2:-0}
@@ -32,6 +32,9 @@ fi
 # Check if Swarm is active
 SWARM_STATUS=$(sudo docker info --format '{{.Swarm.LocalNodeState}}')
 if [ "$SWARM_STATUS" == "active" ]; then
+
+    print_banner "   ATTENTION!"
+
     echo "Docker Swarm is already active on this machine."
     # Check if the machine is a manager or worker
     NODE_ROLE=$(sudo docker info --format '{{.Swarm.ControlAvailable}}')
@@ -158,7 +161,7 @@ if [ $TOKEN == 0 ]; then
   # Check if Swarm is active
   SWARM_STATUS=$(sudo docker info --format '{{.Swarm.LocalNodeState}}')
   if [ "$SWARM_STATUS" == "active" ]; then
-    # Install Portainer
+    print_banner "Installing Portainer..."
     curl -L https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml -o portainer-agent-stack.yml
     sudo docker stack deploy -c portainer-agent-stack.yml portainer
   fi
@@ -167,6 +170,7 @@ else
   sudo -u docker docker swarm join --token $TOKEN $MANAGER_IP
 fi
 
+print_banner "Final check: Docker Info"
 sudo docker info
 
 print_banner "Docker Swarm up and running!"
