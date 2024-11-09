@@ -1,6 +1,15 @@
 #!/bin/bash
-echo "Installing Docker Swarm..."
-echo ""
+
+# Function to print banners
+print_banner() {
+    echo ""
+    echo "=========================================="
+    echo "          $1"
+    echo "=========================================="
+    echo ""
+}
+
+print_banner "Installing Docker Swarm..."
 
 MANAGER_IP=${1:-0}
 TOKEN=${2:-0}
@@ -54,7 +63,7 @@ if [ "$SWARM_STATUS" == "active" ]; then
     exit 0
 fi
 
-
+print_banner "Updating system..."
 if [ "$MANAGER_IP" == "0" ]; then
     MANAGER_IP=$(hostname -I | awk '{print $1}')
 fi
@@ -65,7 +74,7 @@ sudo apt update
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
 sudo apt upgrade -y
 
-
+print_banner "Configuring network settings..."
 # Function to check and enable sysctl parameters
 enable_sysctl_param() {
     local param_name="$1"
@@ -91,7 +100,7 @@ sudo sysctl --system
 
 echo "All network changes have been applied."
 
-
+print_banner "Installing Docker..."
 # Add Docker's official GPG key
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl
@@ -135,6 +144,7 @@ sudo chmod g+rwx "/home/"$DKR_USER"/.docker" -R
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 
+print_banner "Setting up Docker Swarm..."
 # Swarm
 
 # Example iptables rule (order and other tools may require customization)
@@ -158,6 +168,8 @@ else
 fi
 
 sudo docker info
+
+print_banner "Docker Swarm up and running!"
 
 NODE_ROLE=$(sudo docker info --format '{{.Swarm.ControlAvailable}}')
 if [ "$NODE_ROLE" == "true" ]; then
