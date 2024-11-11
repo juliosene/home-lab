@@ -1,5 +1,5 @@
 
-# Cluster Setup Script
+# Cluster4.me Setup Script
 
 This script is designed to set up a Docker Swarm cluster with Portainer on Ubuntu Server 24.04 LTS. Follow the instructions below to prepare your environment and execute the script.
 
