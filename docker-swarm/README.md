@@ -37,7 +37,7 @@ bash install.sh
 
 3. At the end, the script will provide instructions to run the same script with the correct parameters to create new worker or manager nodes, as well as the instructions to access Portainer, the management tool we installed.
 
-4. **Access Portainer** and set up your user and password. **ATTENTION**: For security reasons, Portainer limits the maximum time for you to register. We advise you to do this immediately after the installation of the master.
+4. **Access Portainer** and set up your user and password. **ATTENTION**: For security reasons, Portainer limits the maximum time for you to register. We advise you to do this immediately after the installation of the manager node.
 ```
 https://<MANAGER_IP>:9443"
 ```
