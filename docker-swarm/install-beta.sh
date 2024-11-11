@@ -67,11 +67,22 @@ install_docker_rhel() {
     sudo systemctl enable docker
 }
 
+# Function to configure firewall
+configure_firewall() {
+    sudo firewall-cmd --permanent --zone=public --add-port=2377/tcp
+    sudo firewall-cmd --permanent --zone=public --add-port=7946/tcp
+    sudo firewall-cmd --permanent --zone=public --add-port=7946/udp
+    sudo firewall-cmd --permanent --zone=public --add-port=4789/udp
+    sudo firewall-cmd --permanent --zone=public --add-port=9443/udp
+    sudo firewall-cmd --reload
+}
+
 # Install Docker based on the detected OS
 if [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
     install_docker_debian
 elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
+    configure_firewall
 else
     echo "Unsupported operating system: $OS"
     exit 1
