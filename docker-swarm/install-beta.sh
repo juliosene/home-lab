@@ -84,8 +84,22 @@ elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
     configure_firewall
 else
-    echo "Unsupported operating system: $OS"
-    exit 1
+    echo "Unsupported operating system: $OS. Attempting to proceed based on package manager detection."
+
+    # Check if the package manager is apt (Debian-based)
+    if command -v apt &> /dev/null; then
+        echo "Detected apt package manager. Proceeding with Debian-based installation."
+        install_docker_debian
+
+    # Check if the package manager is dnf or yum (RHEL-based)
+    elif command -v dnf &> /dev/null || command -v yum &> /dev/null; then
+        echo "Detected dnf/yum package manager. Proceeding with RHEL-based installation."
+        install_docker_rhel
+        configure_firewall
+    else
+        echo "Unsupported package manager. Exiting."
+        exit 1
+    fi
 fi
 
 # Check if Swarm is active
@@ -135,6 +149,16 @@ if [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
 elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     sudo dnf update -y
     for pkg in docker podman buildah; do sudo dnf remove -y $pkg; done
+else
+    # Attempt to uninstall conflicting packages based on package manager
+    if command -v apt &> /dev/null; then
+        sudo apt update
+        for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+        sudo apt upgrade -y
+    elif command -v dnf &> /dev/null || command -v yum &> /dev/null; then
+        sudo dnf update -y
+        for pkg in docker podman buildah; do sudo dnf remove -y $pkg; done
+    fi
 fi
 
 print_banner "Configuring network settings..."
