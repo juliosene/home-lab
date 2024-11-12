@@ -55,5 +55,4 @@ https://<MANAGER_IP>:9443"
 - `docker service ls`: Lists running services.
 - `docker network ls`: Lists virtual networks created for the execution of environments.
 
-
-![Portainer Docker Swarm](docker-swarm/images/Portainer-docker-swarm-alma-rocky-debian-ubuntu.png)
+<img src="https://raw.githubusercontent.com/juliosene/home-lab/docker-swarm/images/Portainer-docker-swarm-alma-rocky-debian-ubuntu.pngg">
