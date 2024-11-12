@@ -6,7 +6,12 @@ This script is designed to set up a Docker Swarm cluster with Portainer on Ubunt
 ## Prerequisites
 
 1. **Operating System**:
-   - The script has been tested on the current version of Ubuntu Server, 24.04 LTS.
+   - The script has been tested on:
+      ubuntu 24.04
+      debian 12.8
+      rocky 9.4
+      alma 9.4
+    you can choose to use one of them or a mix of them. Until now, no problems have been detected in creating an environment with multiple Linux distributions as a base for this scrip.
 
 2. **Machines for the Cluster**:
    - Provide the machines that will be used in the cluster.
