@@ -28,12 +28,14 @@ if [ -f /etc/os-release ]; then
     OS=$ID
     VERSION=$VERSION_ID
 else
+    print_banner "   ATTENTION!"
     echo "Cannot detect the operating system. Exiting."
     exit 1
 fi
 
 # Check if Docker is installed
 if command -v docker &> /dev/null; then
+    print_banner "    ATTENTION!"
     read -p "Docker is already installed. Do you want to proceed with the installation and configuration? (yes/no): " PROCEED
     if [ "$PROCEED" != "yes" ]; then
         echo "Installation aborted."
@@ -84,6 +86,7 @@ elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
     configure_firewall
 else
+    print_banner "    ATTENTION!"
     echo "Unsupported operating system: $OS. Attempting to proceed based on package manager detection."
 
     # Check if the package manager is apt (Debian-based)
@@ -97,6 +100,7 @@ else
         install_docker_rhel
         configure_firewall
     else
+        print_banner "   ATTENTION!"
         echo "Unsupported package manager. Exiting."
         exit 1
     fi
