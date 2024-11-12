@@ -2,8 +2,7 @@
 # multi Linux distribution Docker Swarm instalation
 
 # URL for the install script
-# INSTALL_SCRIPT_URL="https://install.cluster4.me"
-INSTALL_SCRIPT_URL="https://github.com/juliosene/home-lab/raw/refs/heads/main/docker-swarm/install-beta.sh"
+INSTALL_SCRIPT_URL="https://install.cluster4.me"
 
 # Function to print banners
 print_banner() {
