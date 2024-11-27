@@ -44,7 +44,7 @@ bash install.sh
 
 4. **Access Portainer** and set up your user and password. **ATTENTION**: For security reasons, Portainer limits the maximum time for you to register. We advise you to do this immediately after the installation of the manager node.
 ```
-https://<MANAGER_IP>:9443"
+https://<MANAGER_IP>:9443
 ```
 
 5. **Use the commands** provided at the end of the manager creation process to create other workers and managers.
