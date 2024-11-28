@@ -75,8 +75,9 @@ install_docker_amazon() {
     sudo yum update -y
     sudo yum install -y docker
     sudo service docker start
-    sudo usermod -aG docker $DKR_USER
-    sudo chkconfig docker on
+    sudo usermod -aG docker $USER
+   # sudo chkconfig docker on
+    sudo systemctl enable docker.service
 }
 
 # Function to configure firewall
