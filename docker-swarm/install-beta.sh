@@ -1,8 +1,8 @@
 #!/bin/bash
+# multi Linux distribution Docker Swarm instalation
 
 # URL for the install script
-# INSTALL_SCRIPT_URL="https://install.cluster4.me"
-INSTALL_SCRIPT_URL="https://github.com/juliosene/home-lab/raw/refs/heads/main/docker-swarm/install-beta.sh"
+INSTALL_SCRIPT_URL="https://install.cluster4.me"
 
 # Function to print banners
 print_banner() {
@@ -69,6 +69,15 @@ install_docker_rhel() {
     sudo systemctl enable docker
 }
 
+# Function to install Docker on Amazon Linux
+install_docker_amazon() {
+    sudo yum update -y
+    sudo yum install -y docker
+    sudo service docker start
+    sudo usermod -aG docker $USER
+    sudo chkconfig docker on
+}
+
 # Function to configure firewall
 configure_firewall() {
     sudo firewall-cmd --permanent --zone=public --add-port=2377/tcp
@@ -85,6 +94,8 @@ if [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
 elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
     configure_firewall
+elif [[ "$OS" == "amzn" ]]; then
+    install_docker_amazon
 else
     print_banner "    ATTENTION!"
     echo "Unsupported operating system: $OS. Attempting to proceed based on package manager detection."
@@ -230,3 +241,4 @@ if [ "$NODE_ROLE" == "true" ]; then
     echo "https://$MANAGER_IP:9443"
     echo ""
 fi
+
