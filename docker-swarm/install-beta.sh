@@ -81,7 +81,7 @@ install_docker_amazon() {
 }
 
 # Function to configure firewall
-configure_firewall() {
+configure_firewall_rhel() {
     sudo firewall-cmd --permanent --zone=public --add-port=2377/tcp
     sudo firewall-cmd --permanent --zone=public --add-port=7946/tcp
     sudo firewall-cmd --permanent --zone=public --add-port=7946/udp
@@ -89,14 +89,36 @@ configure_firewall() {
     sudo firewall-cmd --permanent --zone=public --add-port=9443/udp
     sudo firewall-cmd --reload
 }
+# Function to configure firewall
+configure_firewall_ubuntu() {
+    sudo ufw allow 2377/tcp
+    sudo ufw allow 7946/tcp
+    sudo ufw allow 7946/udp
+    sudo ufw allow 4789/udp
+    sudo ufw allow 9443/udp
+    sudo ufw reload
+}
+# Function to configure firewall
+configure_firewall_amazon() {
+    sudo iptables -A INPUT -p tcp --dport 2377 -j ACCEPT
+    sudo iptables -A INPUT -p tcp --dport 7946 -j ACCEPT
+    sudo iptables -A INPUT -p udp --dport 7946 -j ACCEPT
+    sudo iptables -A INPUT -p udp --dport 4789 -j ACCEPT
+    sudo iptables -A INPUT -p udp --dport 9443 -j ACCEPT
+    sudo service iptables save
+    sudo service iptables restart
+}
+
 
 # Install Docker based on the detected OS
 if [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
     install_docker_debian
+    configure_firewall_ubuntu
 elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
     configure_firewall
 elif [[ "$OS" == "amzn" ]]; then
+    configure_firewall_amazon
     install_docker_amazon
 else
     print_banner "    ATTENTION!"
