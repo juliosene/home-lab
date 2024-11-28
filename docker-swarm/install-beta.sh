@@ -2,7 +2,7 @@
 # multi Linux distribution Docker Swarm instalation
 
 # URL for the install script
-INSTALL_SCRIPT_URL="https://github.com/juliosene/home-lab/raw/refs/heads/main/docker-swarm/install-beta.sh"
+INSTALL_SCRIPT_URL="https://install.cluster4.me"
 
 # Function to print banners
 print_banner() {
@@ -69,12 +69,13 @@ install_docker_rhel() {
     sudo systemctl enable docker
 }
 
+
 # Function to install Docker on Amazon Linux
 install_docker_amazon() {
     sudo yum update -y
     sudo yum install -y docker
     sudo service docker start
-    sudo usermod -aG docker $USER
+    sudo usermod -aG docker $DKR_USER
     sudo chkconfig docker on
 }
 
@@ -241,4 +242,3 @@ if [ "$NODE_ROLE" == "true" ]; then
     echo "https://$MANAGER_IP:9443"
     echo ""
 fi
-
