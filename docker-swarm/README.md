@@ -7,10 +7,11 @@ This script is designed to set up a Docker Swarm cluster with Portainer. Follow 
 
 1. **Operating System**:
    - The script has been tested on:
-      ubuntu 24.04
-      debian 12.8
-      rocky 9.4
-      alma 9.4
+      ubuntu 24.04 (amd64 and arm64)
+      debian 12.8 (amd64)
+      rocky 9.4 (amd64)
+      alma 9.4 (amd64)
+      amazon linux 2023 (amd64 and arm64)
     you can choose to use one of them or a mix of them. Until now, no problems have been detected in creating an environment with multiple Linux distributions as a base for this scrip.
 
 2. **Machines for the Cluster**:
@@ -56,3 +57,22 @@ https://<MANAGER_IP>:9443
 - `docker network ls`: Lists virtual networks created for the execution of environments.
 
 <img src="https://github.com/juliosene/home-lab/raw/00e17679039b0e482240f8755cbdf0bdf8a4cc25/docker-swarm/images/Portainer-docker-swarm-alma-rocky-debian-ubuntu.png">
+
+
+
+## For AWS users:
+To use this script on AWS, create a Security Group that ensures free internal communication between the ports and has access for the Portainer port.
+ allow 2377/tcp
+ allow 7946/tcp
+ allow 7946/udp
+ allow 4789/udp
+ allow 9443/udp
+
+ A simplified version of the rules would allow entry for any port or IP coming from the same Security Group.
+ The port used by Portainer (9443) and SSH (22) should only be open for external access from the IPs of your machine, where the administrative connections originate.
+
+## Updated version as of November 29, 2024.
+
+ Now works with Amazon Linux. 
+ Tested on the latest versions as of the current date. 
+ Tested on amd64 and arm64 systems.
