@@ -65,33 +65,52 @@ install_docker_amazon() {
     sudo systemctl enable docker.service
 }
 
-# Function to configure firewall
+# Function to configure firewall for RHEL
 configure_firewall_rhel() {
-    sudo firewall-cmd --permanent --zone=public --add-port=2377/tcp
-    sudo firewall-cmd --permanent --zone=public --add-port=7946/tcp
-    sudo firewall-cmd --permanent --zone=public --add-port=7946/udp
-    sudo firewall-cmd --permanent --zone=public --add-port=4789/udp
-    sudo firewall-cmd --permanent --zone=public --add-port=9443/udp
-    sudo firewall-cmd --reload
+    if command -v firewall-cmd &> /dev/null; then
+        sudo firewall-cmd --permanent --zone=public --add-port=2377/tcp
+        sudo firewall-cmd --permanent --zone=public --add-port=7946/tcp
+        sudo firewall-cmd --permanent --zone=public --add-port=7946/udp
+        sudo firewall-cmd --permanent --zone=public --add-port=4789/udp
+        sudo firewall-cmd --permanent --zone=public --add-port=9443/udp
+        sudo firewall-cmd --reload
+        echo "Firewall rules configured successfully."
+    else
+        echo "The firewall was disabled. firewall-cmd command not found."
+        exit 1
+    fi
 }
-# Function to configure firewall
+
+# Function to configure firewall for Ubuntu
 configure_firewall_ubuntu() {
-    sudo ufw allow 2377/tcp
-    sudo ufw allow 7946/tcp
-    sudo ufw allow 7946/udp
-    sudo ufw allow 4789/udp
-    sudo ufw allow 9443/udp
-    sudo ufw reload
+    if command -v ufw &> /dev/null; then
+        sudo ufw allow 2377/tcp
+        sudo ufw allow 7946/tcp
+        sudo ufw allow 7946/udp
+        sudo ufw allow 4789/udp
+        sudo ufw allow 9443/udp
+        sudo ufw reload
+        echo "Firewall rules configured successfully."
+    else
+        echo "The firewall was disabled. ufw command not found."
+        exit 1
+    fi
 }
-# Function to configure firewall
+# Function to configure firewall for Amazon Linux
 configure_firewall_amazon() {
-    sudo iptables -A INPUT -p tcp --dport 2377 -j ACCEPT
-    sudo iptables -A INPUT -p tcp --dport 7946 -j ACCEPT
-    sudo iptables -A INPUT -p udp --dport 7946 -j ACCEPT
-    sudo iptables -A INPUT -p udp --dport 4789 -j ACCEPT
-    sudo iptables -A INPUT -p udp --dport 9443 -j ACCEPT
-    sudo service iptables save
-    sudo service iptables restart
+    if command -v iptables &> /dev/null; then
+        sudo iptables -A INPUT -p tcp --dport 2377 -j ACCEPT
+        sudo iptables -A INPUT -p tcp --dport 7946 -j ACCEPT
+        sudo iptables -A INPUT -p udp --dport 7946 -j ACCEPT
+        sudo iptables -A INPUT -p udp --dport 4789 -j ACCEPT
+        sudo iptables -A INPUT -p udp --dport 9443 -j ACCEPT
+        sudo service iptables save
+        sudo service iptables restart
+        echo "Firewall rules configured successfully."
+    else
+        echo "The firewall was disabled. iptables command not found."
+        exit 1
+    fi
 }
 
 # Function to check and enable sysctl parameters
