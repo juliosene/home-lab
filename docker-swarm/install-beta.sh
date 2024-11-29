@@ -159,7 +159,7 @@ else
 fi
 
 ########################################################################################
-print_banner "Updating system and remove old Docker..."
+print_banner "Updating system and removing old Docker..."
 
 # Run the following command to uninstall all conflicting packages
 sudo timedatectl set-ntp true
@@ -185,6 +185,8 @@ else
         for pkg in docker podman buildah; do sudo dnf remove -y $pkg; done
     fi
 fi
+
+print_minibanner "Your system is up to date!"
 
 ########################################################################################
 print_banner "Configuring network settings..."
