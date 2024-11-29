@@ -11,6 +11,9 @@ DKR_USER="docker"
 IS_SWARM=false
 IS_MASTER=false
 
+###############################################################
+# Functions
+
 # Function to print banners
 print_banner() {
     echo ""
@@ -25,30 +28,8 @@ print_minibanner() {
     echo ""
 }
 
+################################################################
 print_banner "Starting install.Cluster4.me"
-
-# Detect the OS
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS=$ID
-    VERSION=$VERSION_ID
-else
-    print_banner "   ATTENTION!"
-    print_minibanner "Cannot detect the operating system. Exiting."
-    exit 1
-fi
-
-# Check if Docker is installed
-if command -v docker &> /dev/null; then
-    print_banner "    ATTENTION!"
-    read -p "Docker is already installed. Do you want to proceed with the installation and configuration? (yes/no): " PROCEED
-    if [ "$PROCEED" != "yes" ]; then
-        print_minibanner "Installation aborted."
-        exit 0
-    fi
-else
-    print_minibanner "Docker is not installed. Proceeding with installation."
-fi
 
 # Function to install Docker on Debian-based systems
 install_docker_debian() {
@@ -73,7 +54,6 @@ install_docker_rhel() {
     sudo systemctl start docker
     sudo systemctl enable docker
 }
-
 
 # Function to install Docker on Amazon Linux
 install_docker_amazon() {
@@ -128,9 +108,35 @@ enable_sysctl_param() {
     fi
 }
 
+###############################################################
+# Detecting the environment
+
 # Capturing the machine's IP address
 if [ "$MANAGER_IP" == "0" ]; then
     MANAGER_IP=$(hostname -I | awk '{print $1}')
+fi
+
+# Detect the OS
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$ID
+    VERSION=$VERSION_ID
+else
+    print_banner "   ATTENTION!"
+    print_minibanner "Cannot detect the operating system. Exiting."
+    exit 1
+fi
+
+# Check if Docker is installed
+if command -v docker &> /dev/null; then
+    print_banner "    ATTENTION!"
+    read -p "Docker is already installed. Do you want to proceed with the installation and configuration? (yes/no): " PROCEED
+    if [ "$PROCEED" != "yes" ]; then
+        print_minibanner "Installation aborted."
+        exit 0
+    fi
+else
+    print_minibanner "Docker is not installed. Proceeding with installation."
 fi
 
 ########################################################################################
