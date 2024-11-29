@@ -17,9 +17,9 @@ IS_MASTER=false
 # Function to print banners
 print_banner() {
     echo ""
-    echo "=========================================="
+    echo "====================================================="
     echo "          $1"
-    echo "=========================================="
+    echo "====================================================="
     echo ""
 }
 print_minibanner() {
@@ -272,7 +272,7 @@ if [ "$SWARM_STATUS" == "active" ]; then
 else
     print_minibanner "Something went wrong. Exiting..."
     exit 0
-if
+fi
 
 ########################################################################################
 print_banner "Docker Swarm up and running!"
