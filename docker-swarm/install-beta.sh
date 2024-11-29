@@ -211,8 +211,8 @@ elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
     configure_firewall
 elif [[ "$OS" == "amzn" ]]; then
-    configure_firewall_amazon
     install_docker_amazon
+    configure_firewall_amazon
 else
     print_banner "    ATTENTION!"
     print_minibanner "Unsupported operating system: $OS. Attempting to proceed based on package manager detection."
