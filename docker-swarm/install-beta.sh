@@ -9,7 +9,7 @@ TOKEN=${2:-0}
 DKR_USER="docker"
 
 IS_SWARM=false
-IS_MASTER=false
+IS_MANAGER=false
 
 ###############################################################
 # Functions
@@ -247,13 +247,13 @@ if [ "$SWARM_STATUS" == "active" ]; then
     NODE_ROLE=$(sudo docker info --format '{{.Swarm.ControlAvailable}}')
     if [ "$NODE_ROLE" == "true" ]; then
         print_minibanner "This machine is a manager node in the Docker Swarm."
-        IS_MASTER=true
+        IS_MANAGER=true
     else
         print_minibanner "This machine is a worker node in the Docker Swarm."
-        IS_MASTER=false
+        IS_MANAGER=false
     fi
     
-    if [ "$IS_MASTER" == "true" ]; then
+    if [ "$IS_MANAGER" == "true" ]; then
         MANAGER_IP=$(hostname -I | awk '{print $1}')
         echo ""
         echo "To add swarm manager nodes, use the command:"
