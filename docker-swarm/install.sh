@@ -208,13 +208,19 @@ print_banner "Installing Docker..."
 # Install Docker based on the detected OS
 if [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
     install_docker_debian
+    print_minibanner "Docker installation completed!"
     configure_firewall_ubuntu
+    print_minibanner "Firewall configuration completed!"
 elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
-    configure_firewall
+    print_minibanner "Docker installation completed!"
+    configure_firewall 
+    print_minibanner "Firewall configuration completed!"
 elif [[ "$OS" == "amzn" ]]; then
     install_docker_amazon
+    print_minibanner "Docker installation completed!"
     configure_firewall_amazon
+    print_minibanner "Firewall configuration completed!"
 else
     print_banner "    ATTENTION!"
     print_minibanner "Unsupported operating system: $OS. Attempting to proceed based on package manager detection."
@@ -223,11 +229,12 @@ else
     if command -v apt &> /dev/null; then
         print_minibanner "Detected apt package manager. Proceeding with Debian-based installation."
         install_docker_debian
-
+        print_minibanner "Docker installation completed!"
     # Check if the package manager is dnf or yum (RHEL-based)
     elif command -v dnf &> /dev/null || command -v yum &> /dev/null; then
         print_minibanner "Detected dnf/yum package manager. Proceeding with RHEL-based installation."
         install_docker_rhel
+        print_minibanner "Docker installation completed!"
         configure_firewall
     else
         print_banner "   ATTENTION!"
