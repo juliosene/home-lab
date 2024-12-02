@@ -77,7 +77,7 @@ configure_firewall_rhel() {
         echo "Firewall rules configured successfully."
     else
         echo "The firewall was disabled. firewall-cmd command not found."
-        exit 1
+#        exit 0
     fi
 }
 
@@ -93,7 +93,7 @@ configure_firewall_ubuntu() {
         echo "Firewall rules configured successfully."
     else
         echo "The firewall was disabled. ufw command not found."
-        exit 1
+#        exit 0
     fi
 }
 # Function to configure firewall for Amazon Linux
@@ -108,8 +108,8 @@ configure_firewall_amazon() {
         sudo service iptables restart
         echo "Firewall rules configured successfully."
     else
-        echo "The firewall was disabled. iptables command not found."
-        exit 1
+#        echo "The firewall was disabled. iptables command not found."
+        exit 0
     fi
 }
 
