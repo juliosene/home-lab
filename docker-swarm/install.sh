@@ -108,8 +108,8 @@ configure_firewall_amazon() {
         sudo service iptables restart
         echo "Firewall rules configured successfully."
     else
-#        echo "The firewall was disabled. iptables command not found."
-        exit 0
+        echo "The firewall was disabled. iptables command not found."
+#        exit 0
     fi
 }
 
