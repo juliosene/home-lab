@@ -91,7 +91,7 @@ check_docker_swarm_status() {
 
     # Check if Swarm is active
     SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
-    print_minibanner "Docker is: "
+    print_minibanner "Docker Swarm is: "
     if [ "$SWARM_STATUS" != "active" ]; then
         echo " NOT ACTIVE"
         exit 1
@@ -245,17 +245,50 @@ else
     exit 1
 fi
 
-# Check if Docker is installed
+# Check if Docker is installed and handle FORCE variable
 if command -v docker &> /dev/null; then
-    print_banner "    ATTENTION!"
-    read -p "Docker is already installed. Do you want to proceed with the installation and configuration? (yes/no): " PROCEED
-    if [ "$PROCEED" != "yes" ]; then
-        print_minibanner "Installation aborted."
-        exit 0
+    if [ "$FORCE" -eq 1 ]; then
+        # Force the node to leave the cluster if it's part of a Swarm
+        SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
+        if [ "$SWARM_STATUS" == "active" ]; then
+            print_minibanner "Forcing the node to leave the Swarm cluster."
+            docker swarm leave --force
+        fi
+        print_minibanner "Forcing Docker reinstallation."
+    else
+        print_banner "    ATTENTION!"
+        read -p "Docker is already installed. Do you want to proceed with the installation and configuration? (yes/no): " PROCEED
+        if [ "$PROCEED" != "yes" ]; then
+            print_minibanner "Installation aborted."
+            exit 0
+        fi
     fi
 else
     print_minibanner "Docker is not installed. Proceeding with installation."
 fi
+
+# Check if Docker is installed and handle FORCE variable
+if command -v docker &> /dev/null; then
+    if [ "$FORCE" -eq 1 ]; then
+        # Force the node to leave the cluster if it's part of a Swarm
+        SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
+        if [ "$SWARM_STATUS" == "active" ]; then
+            print_minibanner "Forcing the node to leave the Swarm cluster."
+            docker swarm leave --force
+        fi
+        print_minibanner "Forcing Docker reinstallation."
+    else
+        print_banner "    ATTENTION!"
+        read -p "Docker is already installed. Do you want to proceed with the installation and configuration? (yes/no): " PROCEED
+        if [ "$PROCEED" != "yes" ]; then
+            print_minibanner "Installation aborted."
+            exit 0
+        fi
+    fi
+else
+    print_minibanner "Docker is not installed. Proceeding with installation."
+fi
+
 
 ########################################################################################
 print_banner "Updating system and removing old Docker..."
