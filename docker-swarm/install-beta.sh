@@ -1,12 +1,75 @@
 #!/bin/bash
 # multi Linux distribution Docker Swarm instalation
 
+# Function to transform command line parameters into variables
+parse_arguments() {
+    # Set default values
+    MANAGER_IP=0
+    TOKEN=0
+    ADD_INFO=0
+    INST_PORTAINER=0
+    FORCE=0
+
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            -m|--manager) MANAGER_IP="$2"; shift ;;
+            -t|--token) TOKEN="$2"; shift ;;
+            -a|--add-info)
+                if [[ "$2" == "yes" ]]; then
+                    ADD_INFO=1
+                elif [[ "$2" == "no" ]]; then
+                    ADD_INFO=0
+                else
+                    echo "Invalid argument for --add-info: $2"
+                    exit 1
+                fi
+                shift ;;
+            -s|--status)
+                if [[ "$2" == "yes" ]]; then
+                    ADD_INFO=1
+                elif [[ "$2" == "no" ]]; then
+                    ADD_INFO=0
+                else
+                    echo "Invalid argument for --status: $2"
+                    exit 1
+                fi
+                shift ;;
+            -p|--portainer)
+                if [[ "$2" == "yes" ]]; then
+                    INST_PORTAINER=1
+                elif [[ "$2" == "no" ]]; then
+                    INST_PORTAINER=0
+                else
+                    echo "Invalid argument for --portainer: $2"
+                    exit 1
+                fi
+                shift ;;
+            -f|--force)
+                if [[ "$2" == "yes" ]]; then
+                    FORCE=1
+                elif [[ "$2" == "no" ]]; then
+                    FORCE=0
+                else
+                    echo "Invalid argument for --force: $2"
+                    exit 1
+                fi
+                shift ;;
+            *) echo "Unknown parameter passed: $1"; exit 1 ;;
+        esac
+        shift
+    done
+}
+
+# Call the function passing all parameters
+parse_arguments "$@"
+
+
 # URL for the install script
 INSTALL_SCRIPT_URL="https://install.cluster4.me"
 
-MANAGER_IP=${1:-0}
-TOKEN=${2:-0}
+# Docker username
 DKR_USER="docker"
+
 
 IS_SWARM=false
 IS_MANAGER=false
@@ -30,6 +93,74 @@ print_minibanner() {
 
 ################################################################
 print_banner "Starting install.Cluster4.me"
+
+# Function to print how to add another node and have access to Portainer
+print_connection_info() {
+    echo ""
+    echo "To add swarm manager nodes, use the command:"
+    echo ""
+    echo "wget $INSTALL_SCRIPT_URL -O install.sh"
+    echo "bash install.sh -m $MANAGER_IP:2377 -t $(sudo docker swarm join-token -q manager)"
+    echo ""
+    echo "To add swarm worker nodes, use the command:"
+    echo ""
+    echo "wget $INSTALL_SCRIPT_URL -O install.sh"
+    echo "bash install.sh -m $MANAGER_IP:2377 -t $(sudo docker swarm join-token -q worker)"
+    echo ""
+    echo "To have access to Portainer, use the URL:"
+    echo "https://$MANAGER_IP:9443"
+    echo ""
+}
+
+# Function to check system status
+check_docker_swarm_status() {
+    print_banner "System Status"
+    # Check if Docker is installed
+    if ! command -v docker &> /dev/null; then
+        print_minibanner "Docker is not installed."
+        exit 1
+    fi
+
+    # Display Docker version
+    DOCKER_VERSION=$(docker --version)
+    print_minibanner "Docker is installed."
+    echo "Docker version: $DOCKER_VERSION"
+
+    # Check if Swarm is active
+    SWARM_STATUS=$(docker info --format '{{.Swarm.LocalNodeState}}')
+    print_minibanner "Docker is: "
+    if [ "$SWARM_STATUS" != "active" ]; then
+        echo " NOT ACTIVE"
+        exit 1
+    fi
+    echo " ACTIVE"
+
+    # Determine if the node is a manager or worker
+    NODE_ROLE=$(docker info --format '{{.Swarm.ControlAvailable}}')
+    print_minibanner "Node info:"
+    if [ "$NODE_ROLE" == "true" ]; then
+        echo "This node is a Swarm MANAGER."
+
+        # Count running containers in the cluster
+        print_minibanner "Number of running containers in the cluster:"
+        docker service ls --format '{{.Replicas}}' | awk -F/ '{running += $1; total += $2} END {print running}'
+
+        # List installed stacks
+        print_minibanner "Stacks installed:"
+        docker stack ls
+
+        # List Swarm nodes and their status
+        print_minibanner "Swarm nodes and their status:"
+        docker node ls
+
+        if [ $MANAGER_IP == 0 ]; then
+            MANAGER_IP=$(hostname -I | awk '{print $1}')
+        fi
+        print_connection_info
+    else
+        echo "This node is a Swarm WORKER."
+    fi
+}
 
 # Function to install Docker on Debian-based systems
 install_docker_debian() {
@@ -77,7 +208,7 @@ configure_firewall_rhel() {
         echo "Firewall rules configured successfully."
     else
         echo "The firewall was disabled. firewall-cmd command not found."
-        exit 1
+#        exit 0
     fi
 }
 
@@ -93,7 +224,7 @@ configure_firewall_ubuntu() {
         echo "Firewall rules configured successfully."
     else
         echo "The firewall was disabled. ufw command not found."
-        exit 1
+#        exit 0
     fi
 }
 # Function to configure firewall for Amazon Linux
@@ -109,7 +240,7 @@ configure_firewall_amazon() {
         echo "Firewall rules configured successfully."
     else
         echo "The firewall was disabled. iptables command not found."
-        exit 1
+#        exit 0
     fi
 }
 
@@ -133,6 +264,10 @@ enable_sysctl_param() {
 # Capturing the machine's IP address
 if [ "$MANAGER_IP" == "0" ]; then
     MANAGER_IP=$(hostname -I | awk '{print $1}')
+fi
+
+if [ $ADD_INFO == 1 ]; then
+    check_docker_swarm_status
 fi
 
 # Detect the OS
@@ -208,13 +343,19 @@ print_banner "Installing Docker..."
 # Install Docker based on the detected OS
 if [[ "$OS" == "ubuntu" || "$OS" == "debian" ]]; then
     install_docker_debian
+    print_minibanner "Docker installation completed!"
     configure_firewall_ubuntu
+    print_minibanner "Firewall configuration completed!"
 elif [[ "$OS" == "rocky" || "$OS" == "centos" ]]; then
     install_docker_rhel
-    configure_firewall
+    print_minibanner "Docker installation completed!"
+    configure_firewall 
+    print_minibanner "Firewall configuration completed!"
 elif [[ "$OS" == "amzn" ]]; then
     install_docker_amazon
+    print_minibanner "Docker installation completed!"
     configure_firewall_amazon
+    print_minibanner "Firewall configuration completed!"
 else
     print_banner "    ATTENTION!"
     print_minibanner "Unsupported operating system: $OS. Attempting to proceed based on package manager detection."
@@ -223,11 +364,12 @@ else
     if command -v apt &> /dev/null; then
         print_minibanner "Detected apt package manager. Proceeding with Debian-based installation."
         install_docker_debian
-
+        print_minibanner "Docker installation completed!"
     # Check if the package manager is dnf or yum (RHEL-based)
     elif command -v dnf &> /dev/null || command -v yum &> /dev/null; then
         print_minibanner "Detected dnf/yum package manager. Proceeding with RHEL-based installation."
         install_docker_rhel
+        print_minibanner "Docker installation completed!"
         configure_firewall
     else
         print_banner "   ATTENTION!"
@@ -255,17 +397,7 @@ if [ "$SWARM_STATUS" == "active" ]; then
     
     if [ "$IS_MANAGER" == "true" ]; then
         MANAGER_IP=$(hostname -I | awk '{print $1}')
-        echo ""
-        echo "To add swarm manager nodes, use the command:"
-        echo ""
-        echo "wget $INSTALL_SCRIPT_URL -O install.sh"
-        echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q manager)"
-        echo ""
-        echo "To add swarm worker nodes, use the command:"
-        echo ""
-        echo "wget $INSTALL_SCRIPT_URL -O install.sh"
-        echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q worker)"
-        echo ""
+        print_connection_info
     fi
     
     exit 0
@@ -292,7 +424,7 @@ print_banner "Final check:"
 SWARM_STATUS=$(sudo docker info --format '{{.Swarm.LocalNodeState}}')
 if [ "$SWARM_STATUS" == "active" ]; then
     sudo docker info
-    sudo docker node ls
+    if [ "$IS_MANAGER" == "true" ]; then sudo docker node ls; fi
 else
     print_minibanner "Something went wrong. Exiting..."
     exit 0
@@ -303,19 +435,5 @@ print_banner "Docker Swarm up and running!"
 
 NODE_ROLE=$(sudo docker info --format '{{.Swarm.ControlAvailable}}')
 if [ "$NODE_ROLE" == "true" ]; then
-    
-    echo ""
-    echo "To add swarm manager nodes, use the command:"
-    echo ""
-    echo "wget $INSTALL_SCRIPT_URL -O install.sh"
-    echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q manager)"
-    echo ""
-    echo "To add swarm worker nodes, use the command:"
-    echo ""
-    echo "wget $INSTALL_SCRIPT_URL -O install.sh"
-    echo "bash install.sh $MANAGER_IP:2377 $(sudo docker swarm join-token -q worker)"
-    echo ""
-    echo "To have access to Portainer, use the URL:"
-    echo "https://$MANAGER_IP:9443"
-    echo ""
+    print_connection_info
 fi
