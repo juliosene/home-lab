@@ -14,46 +14,10 @@ parse_arguments() {
         case $1 in
             -m|--manager) MANAGER_IP="$2"; shift ;;
             -t|--token) TOKEN="$2"; shift ;;
-            -a|--add-info)
-                if [[ "$2" == "yes" ]]; then
-                    ADD_INFO=1
-                elif [[ "$2" == "no" ]]; then
-                    ADD_INFO=0
-                else
-                    echo "Invalid argument for --add-info: $2"
-                    exit 1
-                fi
-                shift ;;
-            -s|--status)
-                if [[ "$2" == "yes" ]]; then
-                    ADD_INFO=1
-                elif [[ "$2" == "no" ]]; then
-                    ADD_INFO=0
-                else
-                    echo "Invalid argument for --status: $2"
-                    exit 1
-                fi
-                shift ;;
-            -p|--portainer)
-                if [[ "$2" == "yes" ]]; then
-                    INST_PORTAINER=1
-                elif [[ "$2" == "no" ]]; then
-                    INST_PORTAINER=0
-                else
-                    echo "Invalid argument for --portainer: $2"
-                    exit 1
-                fi
-                shift ;;
-            -f|--force)
-                if [[ "$2" == "yes" ]]; then
-                    FORCE=1
-                elif [[ "$2" == "no" ]]; then
-                    FORCE=0
-                else
-                    echo "Invalid argument for --force: $2"
-                    exit 1
-                fi
-                shift ;;
+            -a|--add-info) ADD_INFO=1 ;;
+            -s|--status) ADD_INFO=1 ;;  # Same effect as --add-info for now
+            -p|--portainer) INST_PORTAINER=1 ;;
+            -f|--force) FORCE=1 ;;
             *) echo "Unknown parameter passed: $1"; exit 1 ;;
         esac
         shift
@@ -62,7 +26,6 @@ parse_arguments() {
 
 # Call the function passing all parameters
 parse_arguments "$@"
-
 
 # URL for the install script
 INSTALL_SCRIPT_URL="https://install.cluster4.me"
