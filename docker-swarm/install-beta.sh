@@ -231,6 +231,7 @@ fi
 
 if [ $ADD_INFO == 1 ]; then
     check_docker_swarm_status
+    exit 1
 fi
 
 # Detect the OS
