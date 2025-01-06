@@ -30,6 +30,9 @@ parse_arguments "$@"
 # URL for the install script
 INSTALL_SCRIPT_URL="https://install.cluster4.me"
 
+# URL for the Portainer stack
+PORTAINER_STACK_URL="https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml"
+
 # Docker username
 DKR_USER="docker"
 
@@ -405,10 +408,10 @@ fi
 if [ $TOKEN == 0 ]; then
     sudo docker swarm init --advertise-addr $MANAGER_IP
 
-    SWARM_STATUS=$(sudo docker info --format '{{.Swarm.LocalNodeState}}')
+        curl -L https://downloads.portainer.io/portainer-agent-stack.yml -o portainer-agent-stack.yml
     if [ "$SWARM_STATUS" == "active" ]; then
         print_banner "Installing Portainer..."
-        curl -L https://downloads.portainer.io/ce2-21/portainer-agent-stack.yml -o portainer-agent-stack.yml
+        curl -L $PORTAINER_STACK_URL -o portainer-agent-stack.yml
         sudo docker stack deploy -c portainer-agent-stack.yml portainer
     fi
 else
