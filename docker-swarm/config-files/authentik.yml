@@ -1,0 +1,158 @@
+version: '3.8'
+
+services:
+  postgresql:
+    command: []
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 1
+      resources:
+        limits:
+          memory: 7877M
+    environment:
+      - POSTGRES_DB=authentik
+      - POSTGRES_PASSWORD=aB1cD2eF3gH4iJ5kL6mN7oP8qR9sT0uV
+      - POSTGRES_USER=authentik
+      - TZ=America/Sao_Paulo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "pg_isready -d authentik -U authentik"
+      timeout: 5s
+      interval: 30s
+      retries: 5
+      start_period: 20s
+    image: docker.io/library/postgres:17.2
+    labels:
+      icon: https://avatars.githubusercontent.com/u/82976448?s=48&v=4
+    volumes:
+      - type: bind
+        source: /docker/swarmfs/authentik/postgresql/data
+        target: /var/lib/postgresql/data
+    ports: []
+    networks:
+      - authentik_default
+  
+  redis:
+    command:
+      - --save
+      - "60"
+      - "1"
+      - --loglevel
+      - warning
+    deploy:
+      resources:
+        limits:
+          memory: 7877M
+      replicas: 1
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli ping | grep PONG
+      timeout: 3s
+      interval: 30s
+      retries: 5
+      start_period: 20s
+    image: docker.io/library/redis:alpine
+    labels:
+      icon: https://avatars.githubusercontent.com/u/82976448?s=48&v=4
+    volumes:
+      - type: bind
+        source: /docker/swarmfs/authentik/redis/data
+        target: /data
+    ports: []
+    networks:
+      - authentik_default
+
+  server:
+    command:
+      - server
+    depends_on:
+      - postgresql
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 7877M
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 1
+    environment:
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=true
+      - AUTHENTIK_POSTGRESQL__HOST=postgresql
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=aB1cD2eF3gH4iJ5kL6mN7oP8qR9sT0uV
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_REDIS__HOST=redis
+      - AUTHENTIK_SECRET_KEY=zX1yC2vB3nM4kJ5hG6fL7dP8wQ9sT0uV
+    image: ghcr.io/goauthentik/server:2024.12.2
+    labels:
+      icon: https://avatars.githubusercontent.com/u/82976448?s=48&v=4
+    ports:
+      - mode: ingress
+        target: 9000
+        published: 11000
+        protocol: tcp
+      - mode: ingress
+        target: 9443
+        published: 11443
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /docker/swarmfs/authentik/server/media
+        target: /media
+      - type: bind
+        source: /docker/swarmfs/authentik/server/custom-templates
+        target: /templates
+    networks:
+      - authentik_default
+
+  authentik_worker:
+    command:
+      - worker
+    depends_on:
+      - postgresql
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 7877M
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 3
+    environment:
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=true
+      - AUTHENTIK_POSTGRESQL__HOST=postgresql
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=aB1cD2eF3gH4iJ5kL6mN7oP8qR9sT0uV
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_REDIS__HOST=redis
+      - AUTHENTIK_SECRET_KEY=zX1yC2vB3nM4kJ5hG6fL7dP8wQ9sT0uV
+    image: ghcr.io/goauthentik/server:2024.12.2
+    labels:
+      icon: https://avatars.githubusercontent.com/u/82976448?s=48&v=4
+    user: root
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: bind
+        source: /docker/swarmfs/authentik/server/media
+        target: /media
+      - type: bind
+        source: /docker/swarmfs/authentik/server/certs
+        target: /certs
+      - type: bind
+        source: /docker/swarmfs/authentik/server/custom-templates
+        target: /templates
+    networks:
+      - authentik_default
+
+networks:
+  authentik_default:
+    name: authentik_default
